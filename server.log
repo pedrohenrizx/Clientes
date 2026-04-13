@@ -1,0 +1,5 @@
+◇ injected env (1) from .env // tip: ⌁ auth for agents [www.vestauth.com]
+(node:52104) [DEP0040] DeprecationWarning: The `punycode` module is deprecated. Please use a userland alternative instead.
+(Use `node --trace-deprecation ...` to show where the warning was created)
+Server is running on port 3000
+Connected to the SQLite database.
