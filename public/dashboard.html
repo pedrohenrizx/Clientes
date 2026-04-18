@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>CustomerFlow Analytics - Dashboard</title>
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>📊</text></svg>">
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script>
@@ -12,56 +13,164 @@
         }
     </script>
 </head>
-<body class="bg-gray-100 text-gray-900 dark:bg-gray-900 dark:text-gray-100 transition-colors duration-200">
-    <nav class="bg-white dark:bg-gray-800 shadow-md p-4 flex justify-between items-center">
-        <h1 class="text-xl font-bold">CustomerFlow</h1>
-        <div class="flex items-center space-x-4">
-            <span id="user-status" class="text-sm font-medium"></span>
-            <button id="theme-toggle" class="p-2 rounded bg-gray-200 dark:bg-gray-700">Toggle Dark Mode</button>
-            <a href="/subscription" class="text-blue-600 dark:text-blue-400 hover:underline">Upgrade</a>
+<body class="bg-gray-100 text-gray-900 dark:bg-gray-900 dark:text-gray-100 transition-colors duration-200 flex flex-col min-h-screen">
+    <nav class="bg-white dark:bg-gray-800 shadow-md p-4 flex flex-wrap justify-between items-center sticky top-0 z-50">
+        <div class="flex items-center">
+            <h1 class="text-xl font-bold text-blue-600 dark:text-blue-400">CustomerFlow</h1>
+        </div>
+
+        <!-- Mobile menu button -->
+        <button id="mobile-menu-btn" class="md:hidden p-2 rounded focus:outline-none focus:ring-2 focus:ring-blue-500">
+            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16m-7 6h7"></path></svg>
+        </button>
+
+        <div id="nav-links" class="hidden md:flex w-full md:w-auto flex-col md:flex-row items-center space-y-4 md:space-y-0 md:space-x-4 mt-4 md:mt-0">
+            <div class="relative w-full md:w-64">
+                <input type="text" placeholder="Search customers..." class="w-full pl-10 pr-4 py-2 rounded-lg border border-gray-300 dark:border-gray-600 bg-gray-50 dark:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                <svg class="w-5 h-5 absolute left-3 top-2.5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
+            </div>
+            <span id="user-greeting" class="text-sm font-medium text-gray-700 dark:text-gray-300"></span>
+            <button id="theme-toggle" class="p-2 rounded bg-gray-200 dark:bg-gray-700 hover:bg-gray-300 dark:hover:bg-gray-600" aria-label="Toggle Theme">🌓</button>
             <a href="/contact" class="text-blue-600 dark:text-blue-400 hover:underline">Support</a>
             <button id="logout-btn" class="text-red-600 dark:text-red-400 hover:underline">Logout</button>
         </div>
     </nav>
 
-    <div class="container mx-auto p-4 mt-4">
-        <div class="flex justify-between items-center mb-6">
-             <h2 class="text-2xl font-semibold">Dashboard Overview</h2>
-             <button id="download-report" class="bg-green-600 hover:bg-green-700 text-white font-bold py-2 px-4 rounded">Download Report</button>
-        </div>
+    <!-- Toast Notification Container -->
+    <div id="toast-container" class="fixed bottom-4 right-4 z-50 flex flex-col space-y-2"></div>
 
-        <div id="download-msg" class="mb-4 text-sm font-semibold hidden"></div>
+    <div class="container mx-auto p-4 mt-4 flex-grow">
+        <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-6 space-y-4 md:space-y-0">
+             <h2 class="text-2xl font-semibold">Dashboard Overview</h2>
+             <div class="flex space-x-2">
+                 <button id="download-report" class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded shadow flex items-center transition-colors">
+                     <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path></svg>
+                     Export PDF
+                 </button>
+                 <button id="print-dashboard" class="bg-gray-200 hover:bg-gray-300 dark:bg-gray-700 dark:hover:bg-gray-600 text-gray-800 dark:text-gray-200 font-bold py-2 px-4 rounded shadow flex items-center transition-colors">
+                     <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"></path></svg>
+                     Print
+                 </button>
+             </div>
+        </div>
 
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
-            <div class="bg-white dark:bg-gray-800 p-4 rounded-lg shadow">
+            <div class="bg-white dark:bg-gray-800 p-4 rounded-lg shadow relative overflow-hidden group">
                 <h3 class="text-sm text-gray-500 dark:text-gray-400">Total Active Customers</h3>
-                <p class="text-2xl font-bold">1,245</p>
+                <p class="text-2xl font-bold mt-1">1,245</p>
+                <div class="absolute bottom-4 right-4 text-green-500 flex items-center text-sm font-semibold">
+                    <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"></path></svg>
+                    12%
+                </div>
             </div>
-            <div class="bg-white dark:bg-gray-800 p-4 rounded-lg shadow">
+            <div class="bg-white dark:bg-gray-800 p-4 rounded-lg shadow relative overflow-hidden">
                 <h3 class="text-sm text-gray-500 dark:text-gray-400">Conversion Rate</h3>
-                <p class="text-2xl font-bold">12.4%</p>
+                <p class="text-2xl font-bold mt-1">12.4%</p>
+                <div class="absolute bottom-4 right-4 text-green-500 flex items-center text-sm font-semibold">
+                    <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"></path></svg>
+                    2.1%
+                </div>
             </div>
-            <div class="bg-white dark:bg-gray-800 p-4 rounded-lg shadow">
+            <div class="bg-white dark:bg-gray-800 p-4 rounded-lg shadow relative overflow-hidden">
                 <h3 class="text-sm text-gray-500 dark:text-gray-400">Avg Revenue / Customer</h3>
-                <p class="text-2xl font-bold">R$ 350</p>
+                <p class="text-2xl font-bold mt-1">R$ 350,00</p>
+                <div class="absolute bottom-4 right-4 text-red-500 flex items-center text-sm font-semibold">
+                    <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 17h8m0 0V9m0 8l-8-8-4 4-6-6"></path></svg>
+                    4%
+                </div>
             </div>
-            <div class="bg-white dark:bg-gray-800 p-4 rounded-lg shadow">
+            <div class="bg-white dark:bg-gray-800 p-4 rounded-lg shadow relative overflow-hidden">
                 <h3 class="text-sm text-gray-500 dark:text-gray-400">Retention Rate</h3>
-                <p class="text-2xl font-bold">85%</p>
+                <p class="text-2xl font-bold mt-1">85%</p>
+                <div class="absolute bottom-4 right-4 text-green-500 flex items-center text-sm font-semibold">
+                    <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"></path></svg>
+                    1.5%
+                </div>
             </div>
         </div>
 
-        <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
-            <div class="bg-white dark:bg-gray-800 p-4 rounded-lg shadow">
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-8">
+            <div class="bg-white dark:bg-gray-800 p-4 rounded-lg shadow lg:col-span-2">
                 <h3 class="text-lg font-semibold mb-4">Customer Growth</h3>
-                <canvas id="growthChart"></canvas>
+                <div class="relative h-64 w-full">
+                    <canvas id="growthChart"></canvas>
+                </div>
             </div>
             <div class="bg-white dark:bg-gray-800 p-4 rounded-lg shadow">
                 <h3 class="text-lg font-semibold mb-4">Customer Segments</h3>
-                <canvas id="segmentChart"></canvas>
+                <div class="relative h-64 w-full flex justify-center">
+                    <canvas id="segmentChart"></canvas>
+                </div>
             </div>
         </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
+            <div class="bg-white dark:bg-gray-800 p-4 rounded-lg shadow">
+                <h3 class="text-lg font-semibold mb-4">Revenue over Time</h3>
+                <div class="relative h-64 w-full">
+                    <canvas id="revenueChart"></canvas>
+                </div>
+            </div>
+            <div class="bg-white dark:bg-gray-800 p-4 rounded-lg shadow overflow-hidden flex flex-col">
+                <div class="flex justify-between items-center mb-4">
+                    <h3 class="text-lg font-semibold">Recent Activity</h3>
+                    <button class="text-sm text-blue-600 dark:text-blue-400 hover:underline">View All</button>
+                </div>
+                <div class="overflow-x-auto flex-grow">
+                    <table class="w-full text-left border-collapse">
+                        <thead>
+                            <tr class="text-xs text-gray-500 dark:text-gray-400 border-b dark:border-gray-700">
+                                <th class="pb-2 font-medium">Customer</th>
+                                <th class="pb-2 font-medium">Action</th>
+                                <th class="pb-2 font-medium">Date</th>
+                                <th class="pb-2 font-medium text-right">Value</th>
+                            </tr>
+                        </thead>
+                        <tbody class="text-sm divide-y dark:divide-gray-700">
+                            <tr>
+                                <td class="py-3 font-medium">João Silva</td>
+                                <td class="py-3 text-gray-500 dark:text-gray-400">New Purchase</td>
+                                <td class="py-3 text-gray-500 dark:text-gray-400">Today, 14:30</td>
+                                <td class="py-3 text-right font-medium text-green-600 dark:text-green-400">+R$ 150,00</td>
+                            </tr>
+                            <tr>
+                                <td class="py-3 font-medium">Maria Souza</td>
+                                <td class="py-3 text-gray-500 dark:text-gray-400">Subscription Renew</td>
+                                <td class="py-3 text-gray-500 dark:text-gray-400">Yesterday</td>
+                                <td class="py-3 text-right font-medium text-green-600 dark:text-green-400">+R$ 89,90</td>
+                            </tr>
+                            <tr>
+                                <td class="py-3 font-medium">Empresa XYZ</td>
+                                <td class="py-3 text-gray-500 dark:text-gray-400">Account Cancelled</td>
+                                <td class="py-3 text-gray-500 dark:text-gray-400">Oct 24</td>
+                                <td class="py-3 text-right font-medium text-red-600 dark:text-red-400">-R$ 200,00</td>
+                            </tr>
+                            <tr>
+                                <td class="py-3 font-medium">Pedro Costa</td>
+                                <td class="py-3 text-gray-500 dark:text-gray-400">New Purchase</td>
+                                <td class="py-3 text-gray-500 dark:text-gray-400">Oct 23</td>
+                                <td class="py-3 text-right font-medium text-green-600 dark:text-green-400">+R$ 320,00</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <div class="mt-12 pt-8 border-t border-gray-200 dark:border-gray-700">
+            <h3 class="text-lg font-semibold text-red-600 dark:text-red-400 mb-2">Danger Zone</h3>
+            <p class="text-sm text-gray-600 dark:text-gray-400 mb-4">Once you delete your account, there is no going back. Please be certain.</p>
+            <button id="delete-account-btn" class="border border-red-600 text-red-600 hover:bg-red-600 hover:text-white font-bold py-2 px-4 rounded transition-colors duration-200">
+                Delete Account
+            </button>
+        </div>
     </div>
+
+    <footer class="bg-white dark:bg-gray-800 shadow-md mt-8 py-6">
+        <div class="container mx-auto px-4 text-center text-sm text-gray-500 dark:text-gray-400">
+            &copy; 2024 CustomerFlow Analytics. All rights reserved. 100% Free Forever.
+        </div>
+    </footer>
 
     <script>
         const uid = localStorage.getItem('uid');
@@ -70,17 +179,50 @@
             window.location.href = '/';
         }
 
+        // Mobile Menu Toggle
+        document.getElementById('mobile-menu-btn').addEventListener('click', () => {
+            document.getElementById('nav-links').classList.toggle('hidden');
+        });
+
         // Fetch User Info
         fetch(`/api/user/${uid}`, {
             headers: { 'Authorization': `Bearer ${token}` }
         })
             .then(res => res.json())
             .then(data => {
-                if(data.user) {
-                     document.getElementById('user-status').textContent = data.user.is_pro ? 'PRO User' : 'FREE User';
-                     document.getElementById('user-status').classList.add(data.user.is_pro ? 'text-green-500' : 'text-gray-500');
+                if(data.user && data.user.name) {
+                     document.getElementById('user-greeting').textContent = `Hello, ${data.user.name.split(' ')[0]}`;
+                } else {
+                     document.getElementById('user-greeting').textContent = `Hello, User`;
                 }
-            });
+            })
+            .catch(e => console.error(e));
+
+        // Toast Notification System
+        function showToast(message, type = 'success') {
+            const container = document.getElementById('toast-container');
+            const toast = document.createElement('div');
+            const bgColor = type === 'success' ? 'bg-green-500' : 'bg-red-500';
+            toast.className = `${bgColor} text-white px-6 py-3 rounded shadow-lg transform transition-all duration-300 translate-y-full opacity-0 flex items-center`;
+
+            const icon = type === 'success'
+                ? `<svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>`
+                : `<svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>`;
+
+            toast.innerHTML = `${icon} <span>${message}</span>`;
+            container.appendChild(toast);
+
+            // Animate in
+            setTimeout(() => {
+                toast.classList.remove('translate-y-full', 'opacity-0');
+            }, 10);
+
+            // Animate out and remove
+            setTimeout(() => {
+                toast.classList.add('translate-y-full', 'opacity-0');
+                setTimeout(() => toast.remove(), 300);
+            }, 3000);
+        }
 
         // Theme Toggle
         const themeToggleBtn = document.getElementById('theme-toggle');
@@ -91,32 +233,72 @@
         // Logout
         document.getElementById('logout-btn').addEventListener('click', () => {
             localStorage.removeItem('uid');
+            localStorage.removeItem('token');
             window.location.href = '/';
         });
 
-        // Download Report
+        // Download / Print Actions
         document.getElementById('download-report').addEventListener('click', async () => {
-             const response = await fetch('/api/download', {
-                 method: 'POST',
-                 headers: {
-                     'Content-Type': 'application/json',
-                     'Authorization': `Bearer ${token}`
-                 },
-                 body: JSON.stringify({})
-             });
-             const result = await response.json();
-             const msgDiv = document.getElementById('download-msg');
-             msgDiv.classList.remove('hidden', 'text-green-500', 'text-red-500');
-             if(result.success) {
-                 msgDiv.textContent = result.message + " (Simulated)";
-                 msgDiv.classList.add('text-green-500');
-             } else {
-                 msgDiv.textContent = result.error;
-                 msgDiv.classList.add('text-red-500');
+             try {
+                 const response = await fetch('/api/download', {
+                     method: 'POST',
+                     headers: {
+                         'Content-Type': 'application/json',
+                         'Authorization': `Bearer ${token}`
+                     },
+                     body: JSON.stringify({})
+                 });
+                 const result = await response.json();
+                 if(result.success) {
+                     showToast('Report export started!', 'success');
+                 } else {
+                     showToast(result.error || 'Failed to export', 'error');
+                 }
+             } catch(e) {
+                 showToast('Network error', 'error');
              }
         });
 
+        document.getElementById('print-dashboard').addEventListener('click', () => {
+            window.print();
+        });
+
+        // Delete Account
+        document.getElementById('delete-account-btn').addEventListener('click', async () => {
+            if(confirm('Are you absolutely sure you want to delete your account? This action cannot be undone.')) {
+                try {
+                    const response = await fetch(`/api/user/${uid}`, {
+                        method: 'DELETE',
+                        headers: { 'Authorization': `Bearer ${token}` }
+                    });
+                    const result = await response.json();
+                    if(result.success) {
+                        localStorage.removeItem('uid');
+                        localStorage.removeItem('token');
+                        alert('Your account has been successfully deleted.');
+                        window.location.href = '/';
+                    } else {
+                        showToast(result.error || 'Failed to delete account', 'error');
+                    }
+                } catch(e) {
+                    showToast('Network error', 'error');
+                }
+            }
+        });
+
         // Charts Initialization
+        const commonOptions = {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: { labels: { color: document.documentElement.classList.contains('dark') ? '#9ca3af' : '#374151' } }
+            },
+            scales: {
+                x: { ticks: { color: document.documentElement.classList.contains('dark') ? '#9ca3af' : '#374151' }, grid: { color: document.documentElement.classList.contains('dark') ? '#374151' : '#e5e7eb' } },
+                y: { ticks: { color: document.documentElement.classList.contains('dark') ? '#9ca3af' : '#374151' }, grid: { color: document.documentElement.classList.contains('dark') ? '#374151' : '#e5e7eb' } }
+            }
+        };
+
         const growthCtx = document.getElementById('growthChart').getContext('2d');
         new Chart(growthCtx, {
             type: 'line',
@@ -125,10 +307,14 @@
                 datasets: [{
                     label: 'New Customers',
                     data: [65, 59, 80, 81, 56, 120],
-                    borderColor: 'rgb(75, 192, 192)',
-                    tension: 0.1
+                    borderColor: 'rgb(59, 130, 246)',
+                    backgroundColor: 'rgba(59, 130, 246, 0.1)',
+                    borderWidth: 2,
+                    tension: 0.3,
+                    fill: true
                 }]
-            }
+            },
+            options: commonOptions
         });
 
         const segmentCtx = document.getElementById('segmentChart').getContext('2d');
@@ -137,10 +323,54 @@
             data: {
                 labels: ['New', 'Returning', 'Inactive'],
                 datasets: [{
-                    data: [300, 50, 100],
-                    backgroundColor: ['rgb(54, 162, 235)', 'rgb(255, 205, 86)', 'rgb(255, 99, 132)']
+                    data: [300, 150, 50],
+                    backgroundColor: ['rgb(59, 130, 246)', 'rgb(16, 185, 129)', 'rgb(239, 68, 68)'],
+                    borderWidth: 0
                 }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: { position: 'bottom', labels: { color: document.documentElement.classList.contains('dark') ? '#9ca3af' : '#374151', padding: 20 } }
+                },
+                cutout: '70%'
             }
+        });
+
+        const revenueCtx = document.getElementById('revenueChart').getContext('2d');
+        new Chart(revenueCtx, {
+            type: 'bar',
+            data: {
+                labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'],
+                datasets: [{
+                    label: 'Revenue (R$)',
+                    data: [12000, 15000, 14000, 18000, 17500, 22000],
+                    backgroundColor: 'rgb(16, 185, 129)',
+                    borderRadius: 4
+                }]
+            },
+            options: commonOptions
+        });
+
+        // Update chart colors on theme toggle
+        document.getElementById('theme-toggle').addEventListener('click', () => {
+            setTimeout(() => {
+                const isDark = document.documentElement.classList.contains('dark');
+                const textColor = isDark ? '#9ca3af' : '#374151';
+                const gridColor = isDark ? '#374151' : '#e5e7eb';
+
+                Chart.instances.forEach(chart => {
+                    if(chart.options.plugins.legend.labels) chart.options.plugins.legend.labels.color = textColor;
+                    if(chart.options.scales && chart.options.scales.x) {
+                        chart.options.scales.x.ticks.color = textColor;
+                        chart.options.scales.x.grid.color = gridColor;
+                        chart.options.scales.y.ticks.color = textColor;
+                        chart.options.scales.y.grid.color = gridColor;
+                    }
+                    chart.update();
+                });
+            }, 50);
         });
     </script>
 </body>

@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>CustomerFlow Analytics - Login</title>
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>📊</text></svg>">
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
         tailwind.config = {
@@ -16,16 +17,20 @@
         <h1 class="text-3xl font-bold mb-4">CustomerFlow Analytics</h1>
         <p class="text-sm md:text-base mb-8">Gerencie seus clientes de forma eficiente e tome decisões estratégicas baseadas em dados.</p>
 
-        <button id="login-btn" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded transition-colors duration-200">
-            Entrar com Google
+        <button id="login-btn" aria-label="Entrar com a conta do Google" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded transition-colors duration-200 flex items-center justify-center space-x-2">
+            <span id="login-text">Entrar com Google</span>
+            <svg id="login-spinner" class="animate-spin h-5 w-5 text-white hidden" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+            </svg>
         </button>
 
-        <p id="error-message" class="text-red-500 text-sm mt-4 hidden"></p>
+        <p id="error-message" role="alert" aria-live="assertive" class="text-red-500 text-sm mt-4 hidden"></p>
     </div>
 
     <script type="module">
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-        import { getAuth, signInWithPopup, GoogleAuthProvider } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/12.7.0/firebase-app.js";
+        import { getAuth, signInWithPopup, GoogleAuthProvider } from "https://www.gstatic.com/firebasejs/12.7.0/firebase-auth.js";
 
         const firebaseConfig = {
             apiKey: "AIzaSyC8TFitMZgSTmxTTIaeCznwN2CpzWoQ6Bc",
@@ -42,7 +47,19 @@
         const auth = getAuth(app);
         const provider = new GoogleAuthProvider();
 
-        document.getElementById('login-btn').addEventListener('click', async () => {
+        const loginBtn = document.getElementById('login-btn');
+        const loginText = document.getElementById('login-text');
+        const loginSpinner = document.getElementById('login-spinner');
+        const errorMessage = document.getElementById('error-message');
+
+        loginBtn.addEventListener('click', async () => {
+            // Show loading state
+            loginBtn.disabled = true;
+            loginBtn.classList.add('opacity-75', 'cursor-not-allowed');
+            loginText.textContent = 'Autenticando...';
+            loginSpinner.classList.remove('hidden');
+            errorMessage.classList.add('hidden');
+
             try {
                 const result = await signInWithPopup(auth, provider);
                 const user = result.user;
@@ -67,13 +84,18 @@
                     localStorage.setItem('uid', user.uid);
                     window.location.href = '/dashboard';
                 } else {
-                    document.getElementById('error-message').textContent = 'Erro ao sincronizar usuário. Tente novamente.';
-                    document.getElementById('error-message').classList.remove('hidden');
+                    throw new Error('Erro ao sincronizar');
                 }
             } catch (error) {
                 console.error(error);
-                document.getElementById('error-message').textContent = 'Erro ao fazer login com Google.';
-                document.getElementById('error-message').classList.remove('hidden');
+                errorMessage.textContent = 'Erro ao fazer login. Verifique sua conexão e tente novamente.';
+                errorMessage.classList.remove('hidden');
+            } finally {
+                // Reset loading state
+                loginBtn.disabled = false;
+                loginBtn.classList.remove('opacity-75', 'cursor-not-allowed');
+                loginText.textContent = 'Entrar com Google';
+                loginSpinner.classList.add('hidden');
             }
         });
 

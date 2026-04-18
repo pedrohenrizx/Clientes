@@ -1,5 +1,10 @@
-◇ injected env (1) from .env // tip: ⌁ auth for agents [www.vestauth.com]
-(node:52104) [DEP0040] DeprecationWarning: The `punycode` module is deprecated. Please use a userland alternative instead.
-(Use `node --trace-deprecation ...` to show where the warning was created)
+◇ injected env (1) from .env // tip: ◈ encrypted .env [www.dotenvx.com]
 Server is running on port 3000
 Connected to the SQLite database.
+::1 - - [18/Apr/2026:00:09:34 +0000] "GET / HTTP/1.1" 200 - "-" "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/145.0.7632.6 Safari/537.36"
+::1 - - [18/Apr/2026:00:09:36 +0000] "GET /dashboard HTTP/1.1" 200 - "-" "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/145.0.7632.6 Safari/537.36"
+::1 - - [18/Apr/2026:00:09:36 +0000] "GET /api/user/test_uid_pro HTTP/1.1" 200 136 "-" "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/145.0.7632.6 Safari/537.36"
+::1 - - [18/Apr/2026:00:09:39 +0000] "POST /api/download HTTP/1.1" 200 45 "-" "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/145.0.7632.6 Safari/537.36"
+::1 - - [18/Apr/2026:00:09:40 +0000] "GET /missing-page-here HTTP/1.1" 404 - "-" "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/145.0.7632.6 Safari/537.36"
+::1 - - [18/Apr/2026:00:09:42 +0000] "GET /contact HTTP/1.1" 200 - "-" "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/145.0.7632.6 Safari/537.36"
+::1 - - [18/Apr/2026:00:09:44 +0000] "POST /api/contact HTTP/1.1" 200 54 "-" "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/145.0.7632.6 Safari/537.36"
